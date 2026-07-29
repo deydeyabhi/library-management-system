@@ -19,6 +19,7 @@ const Navbar = () => {
         {user && <Link to="/my-books">My Books</Link>}
         {user && user.role === 'admin' && <Link to="/admin/books">Manage Books</Link>}
         {user && user.role === 'admin' && <Link to="/admin/transactions">All Transactions</Link>}
+        {user && user.role === 'admin' && <Link to="/admin/users">Manage Users</Link>}
         {user ? (
           <>
             <span>Hi, {user.name}</span>

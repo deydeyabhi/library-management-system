@@ -10,6 +10,7 @@ import BooksPage from './pages/BooksPage';
 import MyBooksPage from './pages/MyBooksPage';
 import AdminBooksPage from './pages/AdminBooksPage';
 import AdminTransactionsPage from './pages/AdminTransactionsPage';
+import AdminUsersPage from './pages/AdminUsersPage';
 
 function App() {
   return (
@@ -41,6 +42,14 @@ function App() {
             element={
               <AdminRoute>
                 <AdminTransactionsPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminRoute>
+                <AdminUsersPage />
               </AdminRoute>
             }
           />

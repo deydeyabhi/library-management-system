@@ -9,7 +9,7 @@ const generateToken = (id) => {
 // @route POST /api/auth/register
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Please fill in all fields' });
@@ -20,13 +20,14 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Only allow 'admin' role if explicitly seeded/created by another admin in a real app.
-    // Here we allow it for simplicity of local setup, but default is 'member'.
+    // Public self-registration always creates a 'member'. Admins are only
+    // created by an existing admin via PUT /api/auth/users/:id/role, so any
+    // `role` sent in the request body here is intentionally ignored.
     const user = await User.create({
       name,
       email,
       password,
-      role: role === 'admin' ? 'admin' : 'member',
+      role: 'member',
     });
 
     res.status(201).json({
@@ -70,4 +71,51 @@ const getProfile = async (req, res) => {
   res.json(req.user);
 };
 
-module.exports = { registerUser, loginUser, getProfile };
+// @desc  List all users (admin dashboard)
+// @route GET /api/auth/users
+// @access Admin
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// @desc  Change a user's role (promote/demote)
+// @route PUT /api/auth/users/:id/role
+// @access Admin
+const updateUserRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+
+    if (!['admin', 'member'].includes(role)) {
+      return res.status(400).json({ message: "Role must be 'admin' or 'member'" });
+    }
+
+    // Guard: an admin can't change their own role (avoids self-lockout).
+    if (req.params.id === req.user._id.toString()) {
+      return res.status(400).json({ message: 'You cannot change your own role' });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.role = role;
+    await user.save();
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, getProfile, getUsers, updateUserRole };
