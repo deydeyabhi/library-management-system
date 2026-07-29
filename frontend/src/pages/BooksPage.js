@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -75,7 +76,11 @@ const BooksPage = () => {
               <span className={`badge ${book.availableCopies > 0 ? 'available' : 'unavailable'}`}>
                 {book.availableCopies > 0 ? `${book.availableCopies} available` : 'Out of stock'}
               </span>
-              {user && (
+              {user && user.role === 'admin' ? (
+                <Link className="btn secondary" to={`/admin/books/${book._id}`}>
+                  Details
+                </Link>
+              ) : user ? (
                 <button
                   className="btn"
                   disabled={book.availableCopies < 1}
@@ -83,7 +88,7 @@ const BooksPage = () => {
                 >
                   Borrow
                 </button>
-              )}
+              ) : null}
             </div>
           ))}
         </div>

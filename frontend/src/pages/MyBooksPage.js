@@ -5,7 +5,6 @@ const MyBooksPage = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
 
   const fetchTransactions = useCallback(async () => {
     setLoading(true);
@@ -23,28 +22,14 @@ const MyBooksPage = () => {
     fetchTransactions();
   }, [fetchTransactions]);
 
-  const handleReturn = async (id) => {
-    setMessage('');
-    setError('');
-    try {
-      const { data } = await api.put(`/transactions/${id}/return`);
-      if (data.fine > 0) {
-        setMessage(`Book returned. A fine of ${data.fine} was applied for late return.`);
-      } else {
-        setMessage('Book returned successfully!');
-      }
-      fetchTransactions();
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to return book');
-    }
-  };
-
   const isOverdue = (t) => t.status === 'borrowed' && new Date(t.dueDate) < new Date();
 
   return (
     <div>
       <h1 className="page-title">My Borrowed Books</h1>
-      {message && <div className="success-msg">{message}</div>}
+      <p style={{ marginTop: -8, marginBottom: 16, color: 'var(--muted)', fontSize: 14 }}>
+        Returns are handled at the library desk. Overdue fines update automatically each day.
+      </p>
       {error && <div className="error-msg">{error}</div>}
 
       {loading ? (
@@ -60,7 +45,6 @@ const MyBooksPage = () => {
               <th>Due Date</th>
               <th>Status</th>
               <th>Fine</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -76,13 +60,8 @@ const MyBooksPage = () => {
                     ? 'Overdue'
                     : 'Borrowed'}
                 </td>
-                <td>{t.fine > 0 ? t.fine : '-'}</td>
-                <td>
-                  {t.status !== 'returned' && (
-                    <button className="btn secondary" onClick={() => handleReturn(t._id)}>
-                      Return
-                    </button>
-                  )}
+                <td style={{ color: t.currentFine > 0 ? 'var(--danger)' : 'inherit', fontWeight: t.currentFine > 0 ? 600 : 400 }}>
+                  {t.currentFine > 0 ? `₹${t.currentFine}` : '-'}
                 </td>
               </tr>
             ))}

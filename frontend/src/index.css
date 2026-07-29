@@ -11,6 +11,15 @@
   --radius: 10px;
 }
 
+/* Admin sees a blue theme instead of the default green. */
+.admin-theme {
+  --primary: #1d4ed8;
+  --primary-dark: #1e40af;
+  --accent: #60a5fa;
+}
+.admin-theme .badge.available { background: #e0ecff; color: var(--primary-dark); }
+.admin-theme .success-msg { background: #e0ecff; color: var(--primary-dark); }
+
 * { box-sizing: border-box; }
 
 body {

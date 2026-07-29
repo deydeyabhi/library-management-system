@@ -16,8 +16,9 @@ const Navbar = () => {
       <Link to="/" className="brand">📚 Library MS</Link>
       <div className="nav-links">
         <Link to="/">Browse Books</Link>
-        {user && <Link to="/my-books">My Books</Link>}
+        {user && user.role !== 'admin' && <Link to="/my-books">My Books</Link>}
         {user && user.role === 'admin' && <Link to="/admin/books">Manage Books</Link>}
+        {user && user.role === 'admin' && <Link to="/admin/borrowed">Manage Borrowed</Link>}
         {user && user.role === 'admin' && <Link to="/admin/transactions">All Transactions</Link>}
         {user && user.role === 'admin' && <Link to="/admin/users">Manage Users</Link>}
         {user ? (
